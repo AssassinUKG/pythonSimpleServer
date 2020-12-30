@@ -46,9 +46,12 @@ def ShowMenu(CheckedIP):
     
     while True:
         Choice = input(f"Select ip in range (1, {selection})\n" + SB+RD + "$ " + RS)
+        
         if Choice == '1':
-            return CheckedIP[selection -2]
+            return CheckedIP[selection -3]
         elif Choice == '2':
+            return CheckedIP[selection -2]
+        elif Choice == '3':
             return CheckedIP[selection -1]
         else:
             print(RD+ "Invalid Choice, Try again!" + RS)
@@ -86,5 +89,5 @@ def RunServer(ip):
 
 Banner()
 IPADDRESS = IPChoice()
-print(IPADDRESS)
+#print(IPADDRESS)
 RunServer(IPADDRESS)
