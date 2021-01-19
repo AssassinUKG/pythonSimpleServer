@@ -3,10 +3,10 @@ A bash and python script for severing files on your pc, Red team.
 
 ## pss.py - Python3
 
-# Wget
+# wget
 ![](/assets/pss.png)
 
-# Curl
+# curl
 ![](/assets/pss2.png)
 
 ## Usage
