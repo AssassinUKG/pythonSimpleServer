@@ -21,10 +21,6 @@ sudo cp pss.py /usr/local/bin
 * Now run from anywhere
 
 
-pss.sh - Bash - RETIRED FOR NOW (NEEDS WORK)
+~~pss.sh - Bash~~ - RETIRED FOR NOW (NEEDS WORK)
 
-Copy to /usr/local/bin (to use anywhere)
-```console
-cp pss.sh /usr/local/bin
-```
 
