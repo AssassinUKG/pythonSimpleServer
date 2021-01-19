@@ -3,7 +3,8 @@ import re
 import subprocess
 import os
 from colorama import Fore, Back, Style
-
+from signal import signal, SIGINT
+from sys import exit
 
 SB = Style.BRIGHT
 RS = Style.RESET_ALL
@@ -15,6 +16,12 @@ BL = Fore.BLUE
 YW = Fore.YELLOW
 WT = Fore.WHITE
 
+
+def handler(signal_received, frame):
+    #Usage: signal(SIGINT, handler)
+    print(RD+ '\nCtrl + C detected, Closing application gracefully.' + RS)
+    exit(0)
+   
 
 def Banner():
     os.system("clear")
@@ -79,11 +86,11 @@ def IPChoice():
 def RunServer(ip):
     Banner()
     files = os.listdir('.')
-    portSel = input("Enter a port for server (Press Enter for default: 8080): ")
+    portSel = input("Enter port for Python server (Press Enter for default: 8080): ")
     method = ""
     while True:
         
-        wgetOrCurl = input("Wget or Curl (press enter for wget Default (w) or c for curl: ")
+        wgetOrCurl = input("Method: Wget / Curl (press Enter Default (wget) or 'c' for curl: ")
         if wgetOrCurl == "c":
             method = "curl"
             break
@@ -96,22 +103,22 @@ def RunServer(ip):
             
 
 
-    print(BL+SB+ "Copy Links...\n" + RS)
-    for file in files:
-        
+    print(BL+SB+ "\nCopy Links...\n" + RS)
+    for file in files:        
         if not file.startswith(".") and not os.path.isdir(file):
             print(GN + SB+ f"\t{method} http://{''.join(ip)}/{file}" + RS)
             
     HostFiles()
     print("\n")
     print(SB+GN+ "Starting Server" + RS)
-
     
     if not portSel: portSel = 8080
+    
     os.system(f"sudo python3 -m http.server {portSel}")
 
 
-Banner()
-IPADDRESS = IPChoice()
-#print(IPADDRESS)
-RunServer(IPADDRESS)
+if __name__ == '__main__':
+    signal(SIGINT, handler)
+    Banner()
+    IPADDRESS = IPChoice()
+    RunServer(IPADDRESS)
