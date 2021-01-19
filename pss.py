@@ -102,17 +102,19 @@ def RunServer(ip):
             break
             
 
-
+    if not portSel: portSel = 8080
     print(BL+SB+ "\nCopy Links...\n" + RS)
     for file in files:        
         if not file.startswith(".") and not os.path.isdir(file):
-            print(GN + SB+ f"\t{method} http://{''.join(ip)}/{file}" + RS)
-            
+            if method == "wget":
+                print(GN + SB+ f"\t{method} http://{''.join(ip)}:{portSel}/{file}" + RS)
+            else:
+                print(GN + SB+ f"\t{method} http://{''.join(ip)}:{portSel}/{file} --output {file}" + RS)
     HostFiles()
     print("\n")
     print(SB+GN+ "Starting Server" + RS)
     
-    if not portSel: portSel = 8080
+    
     
     os.system(f"sudo python3 -m http.server {portSel}")
 
