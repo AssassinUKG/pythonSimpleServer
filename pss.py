@@ -46,13 +46,17 @@ def ShowMenu(CheckedIP):
     
     while True:
         Choice = input(f"Select ip in range (1, {selection})\n" + SB+RD + "$ " + RS)
-        
-        if Choice == '1':
-            return CheckedIP[selection -3]
-        elif Choice == '2':
-            return CheckedIP[selection -2]
-        elif Choice == '3':
-            return CheckedIP[selection -1]
+        Choice = int(Choice)
+        if Choice == 1:
+            return CheckedIP[Choice -1]
+        elif Choice == 2:
+            return CheckedIP[Choice -1]
+        elif Choice == 3:
+            return CheckedIP[Choice -1]
+        elif Choice == 4:
+            return CheckedIP[Choice -1]
+        elif Choice == 5:
+            return CheckedIP[Choice -1]
         else:
             print(RD+ "Invalid Choice, Try again!" + RS)
     
@@ -64,8 +68,8 @@ def IPChoice():
     for ip in HostnameSplits:
         res = re.match("^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$", ip)
         if res:
-            checkedIP.append(ip)
-       
+            checkedIP.append(ip)      
+    
 
     if len(checkedIP) <= 1:
         return checkedIP
@@ -75,16 +79,36 @@ def IPChoice():
 def RunServer(ip):
     Banner()
     files = os.listdir('.')
+    portSel = input("Enter a port for server (Press Enter for default: 8080): ")
+    method = ""
+    while True:
+        
+        wgetOrCurl = input("Wget or Curl (press enter for wget Default (w) or c for curl: ")
+        if wgetOrCurl == "c":
+            method = "curl"
+            break
+        elif wgetOrCurl == "w":
+            method = "wget"
+            break 
+        else:
+            method = "wget"
+            break
+            
+
+
     print(BL+SB+ "Copy Links...\n" + RS)
     for file in files:
         
         if not file.startswith(".") and not os.path.isdir(file):
-            print(GN + SB+ f"\twget {''.join(ip)}/{file}" + RS)
+            print(GN + SB+ f"\t{method} http://{''.join(ip)}/{file}" + RS)
             
     HostFiles()
     print("\n")
     print(SB+GN+ "Starting Server" + RS)
-    os.system("sudo python3 -m http.server 80")
+
+    
+    if not portSel: portSel = 8080
+    os.system(f"sudo python3 -m http.server {portSel}")
 
 
 Banner()
