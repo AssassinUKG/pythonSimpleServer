@@ -5,14 +5,15 @@ import threading
 from functools import partial
 import sys
 import time
-
-
 import re
 import subprocess
 import os
+from types import BuiltinFunctionType
 from colorama import Fore, Back, Style
 from signal import signal, SIGINT
 from sys import exit
+import argparse
+
 
 SB = Style.BRIGHT
 RS = Style.RESET_ALL
@@ -29,15 +30,25 @@ def handler(signal_received, frame):
     #Usage: signal(SIGINT, handler)
     print(RD+ '\nCtrl + C detected, Closing application gracefully.' + RS)
     exit(0)
-   
 
 def Banner():
     if os.name is 'nt':
         os.system("cls")
     else:
         os.system("clear")
-    print(SB+GN+"Python FileServer" +RS)
-    print(WT+ "Created by "+SB+CY+ "Ac1D" + RS + "\n")
+
+    ban="""
+  _______ __                _______                  
+ |   _   |__.--------.-----|   _   .-----.----.--.--.
+ |   $___|  |        |  _  |   $___|  -__|   _|  |  |
+ |____   |__|__|__|__|   __|____   |_____|__|  \___/ 
+ |:  $   |           |__|  |:  $   |                 
+ |::.. . |                 |::.. . |                 
+ `-------'                 `-------'                 
+                                                     """
+
+    print(SB+GN+ ban +RS)
+    print(SB+WT+ "Created by "+SB+CY+ "Ac1D" + RS + "\n")
 
 def GetHostInfo():
     if (os.name is 'nt'):
@@ -52,55 +63,38 @@ def GetHostInfo():
         return HOSTNAME
 
 
-def HostFiles():
-    #1. List files, Add to list files
-    #2. Start python server for files
-    #os.system("cd $pwd")
-    print(BL+SB+ "\nCurrent Directory...\n" + RS)
-    os.system("ls -lh --color")
-
-
-
 def ShowMenu(CheckedIP):
-    print("-" * 10 + SB+GN +" IP SELECTION " + RS + "-" * 10 + "\n")
+    print("-" * 10 + SB+GN +" IP SELECTION " + RS + "-" * 10)
     selection = 0
     for ip in CheckedIP:
         print(f"{selection +1}: {str(ip).strip()}")
         selection +=1
     print("-" * 33)
     
-    while True:
-        Choice = input(f"Select ip in range (1, {selection})\n" + SB+RD + "$ " + RS)
-        Choice = int(Choice)
+    while True:        
         try:
-                
-            if Choice == 1:
-                return CheckedIP[Choice -1]
-            elif Choice == 2:
-                return CheckedIP[Choice -1]
-            elif Choice == 3:
-                return CheckedIP[Choice -1]
-            elif Choice == 4:
-                return CheckedIP[Choice -1]
-            elif Choice == 5:
-                return CheckedIP[Choice -1]
-            else:
-                print(RD+ "Invalid Choice, Try again!" + RS)
+            Choice = input(f"Select ip in range (1, {selection})\n" + SB+GN + "$ " + RS)
+            Choice = int(Choice)
+            return CheckedIP[Choice -1]
         except:
             print(RD+ "Invalid Choice, Try again!" + RS)
 
+def getdirpath():
+    return os.path.dirname(os.path.realpath(__file__))
+
 def runserv(port, dir):
-    try:
-            
-        handler = partial(http.server.SimpleHTTPRequestHandler, directory=dir)
-        socketserver.TCPServer.allow_reuse_address = True
-        httpd = socketserver.TCPServer(("", port), handler)
+  
+    handler = partial(http.server.SimpleHTTPRequestHandler, directory=dir)
+    socketserver.TCPServer.allow_reuse_address = True
+    global httpd 
+    httpd = socketserver.TCPServer(("", int(port)), handler)
+    try:            
+    #global httpd
         t = threading.Thread(target=httpd.serve_forever)
         t.daemon = True
         t.start()
         while True:
-            time.sleep(1)
-        
+            time.sleep(1)            
     except:
         httpd.shutdown()
         t.join()
@@ -114,22 +108,22 @@ def IPChoice():
         res = re.match("^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$", ip.strip())
         if res:
             if "255.255.255.0" in res.string : continue
-            checkedIP.append(ip.strip())      
-    
+            checkedIP.append(ip.strip())
 
     if len(checkedIP) <= 1:
         return checkedIP
     else:
         return ShowMenu(checkedIP)
 
-def RunServer(ip):
+def RunServer(ip,dir):
     Banner()
-    files = os.listdir('.')
-    portSel = input("Enter port for Python server (Press Enter for default: 8080): ")
+    if dir is None or dir is '':
+        dir = getdirpath()
+    files = os.listdir(dir)
+    portSel = input(SB+WT+"Enter port (Press Enter for default: 8080): "+RS)
     method = ""
     while True:
-        
-        wgetOrCurl = input("Method: Wget / Curl (press Enter Default (wget) or 'c' for curl: ")
+        wgetOrCurl = input(SB+WT+"Method: Wget / Curl (press Enter Default (wget) or 'c' for curl: "+RS)
         if wgetOrCurl == "c":
             method = "curl"
             break
@@ -139,7 +133,6 @@ def RunServer(ip):
         else:
             method = "wget"
             break
-            
 
     if not portSel: portSel = 8080
     print(SB+CY+ "\nCopy Links...\n" + RS)
@@ -149,22 +142,23 @@ def RunServer(ip):
                 print(GN + SB+ f"\t{method} http://{''.join(ip)}:{portSel}/{file}" + RS)
             else:
                 print(GN + SB+ f"\t{method} http://{''.join(ip)}:{portSel}/{file} --output {file}" + RS)
-    #HostFiles()
-    print("\n")
-    print(SB+GN+ "Starting Server" + RS)
-     # os.system(f"sudo python3 -m http.server {portSel}")
-    runserv(portSel, "/tmp")
-    
-    
-  
-
+    #print("\n")
+    print(SB+CY+ f"\nServing files..." + RS)
+    runserv(portSel, dir)
 
 
 if __name__ == '__main__':
     signal(SIGINT, handler)
     Banner()
     IPADDRESS = IPChoice()
-    RunServer(IPADDRESS)
+    ap_parser = argparse.ArgumentParser()
+    ap_parser.add_argument("-d", "--dir", help="directory to serve files from.", type=str)
+    par = ap_parser.parse_args()
+    if par.dir:
+        dir = par.dir
+    else:
+        dir = ""
+    RunServer(IPADDRESS,dir)
 
 
 
